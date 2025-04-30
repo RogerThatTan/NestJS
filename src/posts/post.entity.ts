@@ -95,9 +95,9 @@ export class Post {
    * Many to Many relationship with Tag entity
    */
 
-  @ManyToMany(() => Tag, {
+  @ManyToMany(() => Tag,(tag) => tag.posts, {
     eager: true,
   })
-  @JoinTable()
+  @JoinTable() //for the relationship for post and tag table
   tags?: Tag[];
 }
