@@ -1,0 +1,8 @@
+POST http://localhost:3000/tags
+Content-Type: application/json
+
+{
+  "name": "jsrt",
+  "slug": "hdffg",
+  "description": "All posts javascript"
+}

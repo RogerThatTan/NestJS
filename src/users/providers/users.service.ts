@@ -1,10 +1,20 @@
-import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  forwardRef,
+  RequestTimeoutException,
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { GetUsersParamDto } from '../DTOs/get-users-param.dto';
 import { AuthService } from 'src/auth/providers/auth.service';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user.entity';
 import { CreateUserDTO } from '../DTOs/create-users.dto';
+import { ConfigService, ConfigType } from '@nestjs/config';
+import profileConfig from '../config/profile.config';
 
 /**
  * Class to connect Users table and perform business operations
@@ -20,20 +30,50 @@ export class UsersService {
 
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+
+    /**
+     * Injecting config service to get the environment variables
+     */
+    @Inject(profileConfig.KEY)
+    private readonly profileConfiguration: ConfigType<typeof profileConfig>,
   ) {}
 
   public async createUser(createUserDto: CreateUserDTO) {
+    let existingUser: User | null = null;
+    try {
+      existingUser = await this.usersRepository.findOne({
+        where: { email: createUserDto.email },
+      });
+    } catch (error) {
+      //Might save the deatails of the exception
+      //Information which is sensitive
+      throw new RequestTimeoutException(
+        'Unable to process your request at the moment',
+        {
+          description: 'Error while checking for existing user',
+        },
+      );
+    }
+
     //check is user exists with same email
 
-    const existingUser = await this.usersRepository.findOne({
-      where: { email: createUserDto.email },
-    });
-
     //handle exception
+    if (existingUser) {
+      throw new BadRequestException('User with this email already exists');
+    }
 
     //create new user
     let newUser = this.usersRepository.create(createUserDto);
-    newUser = await this.usersRepository.save(newUser);
+    try {
+      newUser = await this.usersRepository.save(newUser);
+    } catch (error) {
+      throw new RequestTimeoutException(
+        'Unable to process your request at the moment',
+        {
+          description: 'Error while creating new user',
+        },
+      );
+    }
     return newUser;
   }
 
@@ -42,23 +82,41 @@ export class UsersService {
     limit: number,
     page: number,
   ) {
-    const isAuth = this.authService.isAuth();
-    console.log(isAuth);
-    return [
+    throw new HttpException(
       {
-        firstName: 'john',
-        email: 'john@doe.com',
+        status: HttpStatus.MOVED_PERMANENTLY,
+        error: 'This endpoint is not implemented yet',
+        fileName: 'users.service.ts',
+        lineMumber: 88,
       },
+      HttpStatus.MOVED_PERMANENTLY,
       {
-        firstName: 'kola',
-        email: 'kola@doe.com',
+        cause: new Error(),
+        description: 'This endpoint is not implemented yet',
       },
-    ];
+    );
   }
 
   public async findOneById(id: number) {
-    return await this.usersRepository.findOneBy({
-      id,
-    });
+    let user: User | null = null;
+    try {
+      user = await this.usersRepository.findOneBy({
+        id,
+      });
+    } catch (error) {
+      throw new RequestTimeoutException(
+        'Unable to process your request at the moment',
+        {
+          description: 'Error while creating new user',
+        },
+      );
+    }
+    /**
+     * Handle user doesnt exists exception
+     */
+    if (!user) {
+      throw new BadRequestException('User with this id does not exist');
+    }
+    return user;
   }
 }

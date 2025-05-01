@@ -111,15 +111,14 @@ export class CreatePostDTO {
   @Type(() => CreatePostMetaOptionsDTO)
   metaOptions?: CreatePostMetaOptionsDTO | undefined;
 
-  // @ApiPropertyOptional({
-  //   description: 'Array of tags passed as string values',
-  //   example: '',
-  // })
-  // @IsOptional()
-  // @IsArray()
-  // @IsString({ each: true })
-  // @MinLength(3, { each: true })
-  // tags?: string[];
+  @ApiPropertyOptional({
+    description: 'Array of IDS of Tags',
+    example: [1, 2],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  tags?: number[];
 
   @ApiProperty({
     type: 'integer',

@@ -1,3 +1,4 @@
+import { Post } from 'src/posts/post.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -5,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToMany,
 } from 'typeorm';
 
 @Entity()
@@ -47,6 +49,12 @@ export class Tag {
   })
   featuredImageUrl?: string;
 
+  //For birectional
+  @ManyToMany(() => Post, (post) => post.tags, {
+    onDelete: 'CASCADE',
+  })
+  posts: Post[];
+
   //https://orkhan.gitbook.io/typeorm/docs/decorator-reference
 
   @CreateDateColumn()
@@ -54,6 +62,8 @@ export class Tag {
 
   @UpdateDateColumn()
   updateDate: Date;
+
+  //Soft delete video part
 
   @DeleteDateColumn()
   deletedAt: Date;
