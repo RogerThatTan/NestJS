@@ -9,12 +9,14 @@ import {
 } from '@nestjs/common';
 import { GetUsersParamDto } from '../DTOs/get-users-param.dto';
 import { AuthService } from 'src/auth/providers/auth.service';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user.entity';
 import { CreateUserDTO } from '../DTOs/create-users.dto';
 import { ConfigService, ConfigType } from '@nestjs/config';
 import profileConfig from '../config/profile.config';
+import { UsersCreateManyProvider } from './users-create-many.provider';
+import { CreateManyUsersDTO } from '../DTOs/create-many-users.dto';
 
 /**
  * Class to connect Users table and perform business operations
@@ -36,6 +38,10 @@ export class UsersService {
      */
     @Inject(profileConfig.KEY)
     private readonly profileConfiguration: ConfigType<typeof profileConfig>,
+    /**
+     * Inject CreateManyProvider
+     */
+    private readonly usersCreateManyProvider: UsersCreateManyProvider,
   ) {}
 
   public async createUser(createUserDto: CreateUserDTO) {
@@ -118,5 +124,12 @@ export class UsersService {
       throw new BadRequestException('User with this id does not exist');
     }
     return user;
+  }
+
+  /**
+   * Transaction Module Video Codes Starts from here
+   */
+  public async createMany(createManyUsersDto: CreateManyUsersDTO) {
+    return await this.usersCreateManyProvider.createMany(createManyUsersDto);
   }
 }

@@ -21,6 +21,7 @@ import { GetUsersParamDto } from './DTOs/get-users-param.dto';
 import { PatchUserDTO } from './DTOs/patch-users.dto';
 import { UsersService } from './providers/users.service';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CreateManyUsersDTO } from './DTOs/create-many-users.dto';
 @Controller('users')
 @ApiTags('Users')
 export class UsersController {
@@ -63,11 +64,6 @@ export class UsersController {
       'The position of the page number that you want the API to return',
     example: 1,
   })
-  // public getUsers(@Param() params: any, @Query() query: any) {
-  //   console.log(params);
-  //   console.log(query);
-  //   return 'You sent a request to users endpoint';
-  // }
   public getUsers(
     @Param() getUserParamDto: GetUsersParamDto,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -76,37 +72,15 @@ export class UsersController {
     return this.usersService.findAll(getUserParamDto, limit, page);
   }
 
-  //only id and limit will show in the console
-  // public getUsers(
-  //   @Param('id', ParseIntPipe) id: number | undefined,
-  //   @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
-  //   @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-  // ) {
-  //   // console.log(typeof id);
-  //   // console.log(id);
-  //   console.log(typeof limit);
-  //   console.log(limit);
-  //   console.log(typeof page);
-  //   console.log(page);
-  //   return 'You sent a request to users endpoint';
-  // }
-
   @Post()
   public createUsers(@Body() createUserDto: CreateUserDTO) {
     return this.usersService.createUser(createUserDto);
   }
 
-  //only email will show
-  // public createUsers(@Body('email') email: any) {
-  //   console.log(email);
-  //   return 'You sent a post request to users endpoint';
-  // }
-
-  //need for express js for more object values
-  // public createUsers(@Req() request: Request) {
-  //   console.log(request);
-  //   return 'You sent a post request to users endpoint';
-  // }
+  @Post('create-many')
+  public createManyUsers(@Body() createManyUsersDto: CreateManyUsersDTO) {
+    return this.usersService.createMany(createManyUsersDto);
+  }
 
   @Patch()
   public patchUser(@Body() patchUserDto: PatchUserDTO) {
