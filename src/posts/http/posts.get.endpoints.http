@@ -1,1 +1,8 @@
-GET http://localhost:3000/posts/
+@startDate = 2025-05-05T00:00:00Z
+@endDate = 2025-05-05T23:59:59Z
+
+GET http://localhost:3000/posts/31/
+?startDate={{startDate}}
+&endDate={{endDate}}
+&limit=1
+&page=4

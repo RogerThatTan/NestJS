@@ -14,6 +14,9 @@ import { MetaOption } from 'src/meta-options/meta-option.entity';
 import { TagsService } from 'src/tags/providers/tags.service';
 import { PatchPostDTO } from '../DTOs/patch-post.dto';
 import { Tag } from 'src/tags/tag.entity';
+import { GetPostsDto } from '../DTOs/get-posts.dto';
+import { PaginationProvider } from 'pagination/providers/pagination.provider';
+import { Paginated } from 'pagination/interfaces/paginated.interface';
 @Injectable()
 export class PostsService {
   constructor(
@@ -35,6 +38,10 @@ export class PostsService {
     public readonly metaOptionsRepository: Repository<MetaOption>,
 
     private readonly tagsService: TagsService,
+    /**
+     * Injecting pagination provider
+     */
+    private readonly paginationProvider: PaginationProvider,
   ) {}
 
   /**
@@ -61,16 +68,19 @@ export class PostsService {
     return await this.postsRepository.save(post);
   }
 
-  public async findAll(userId: string) {
+  public async findAll(
+    postQuery: GetPostsDto,
+    userId: string,
+  ): Promise<Paginated<Post>> {
     //users service
 
-    let posts = await this.postsRepository.find({
-      relations: {
-        metaOptions: true,
-        //tags: true,
-        // author: true,
+    let posts = await this.paginationProvider.paginateQuery(
+      {
+        limit: postQuery.limit,
+        page: postQuery.page,
       },
-    });
+      this.postsRepository,
+    );
     return posts;
   }
 
